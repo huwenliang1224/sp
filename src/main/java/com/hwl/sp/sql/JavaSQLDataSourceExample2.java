@@ -35,7 +35,7 @@ public class JavaSQLDataSourceExample2 {
 
         peopleDF.createOrReplaceTempView("test");
 
-        Dataset<Row> result = spark.sql("select * from test order by index");
+        Dataset<Row> result = spark.sql("select index,name,age from test order by index");
         result.show();
 
 
