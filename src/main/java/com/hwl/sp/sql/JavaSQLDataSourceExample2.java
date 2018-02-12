@@ -35,7 +35,7 @@ public class JavaSQLDataSourceExample2 {
 
         peopleDF.createOrReplaceTempView("test");
 
-        Dataset<Row> result = spark.sql("select class, count(age) age from test group by class");
+        Dataset<Row> result = spark.sql("select class, sum(age) age from test group by class");
         result.show();
 
 
