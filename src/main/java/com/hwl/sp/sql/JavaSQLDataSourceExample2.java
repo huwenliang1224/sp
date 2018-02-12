@@ -30,9 +30,14 @@ public class JavaSQLDataSourceExample2 {
                 .config("spark.some.config.option", "some-value")
                 .getOrCreate();
 
-
-        Dataset<Row> peopleDF = spark.read().format("json").load("people2.json");
+        Dataset<Row> peopleDF = spark.read().json("test.json");
         peopleDF.show();
+
+        peopleDF.createOrReplaceTempView("test");
+
+        Dataset<Row> result = spark.sql("select * from test order by index");
+        result.show();
+
 
         spark.stop();
     }
