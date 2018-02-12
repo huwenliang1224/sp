@@ -1,4 +1,4 @@
-package com.hwl.sp;
+package com.hwl.sp.sql;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
