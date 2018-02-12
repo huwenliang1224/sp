@@ -31,7 +31,7 @@ public class JavaSQLDataSourceExample2 {
                 .getOrCreate();
 
         Dataset<Row> peopleDF = spark.read().format("json").load("examples/src/main/resources/people.json");
-        peopleDF.foreach(row -> System.out.println(row.getString(0) + " " + row.getLong(1)));
+        peopleDF.foreach(row -> System.out.println(row.<String>getAs("name")));
 
         spark.stop();
     }
