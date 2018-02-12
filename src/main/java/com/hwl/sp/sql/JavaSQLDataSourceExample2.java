@@ -33,6 +33,8 @@ public class JavaSQLDataSourceExample2 {
         Dataset<Row> peopleDF = spark.read().format("json").load("examples/src/main/resources/people.json");
         peopleDF.select("name", "age").write().format("json").save("people2.json");
 
+        peopleDF.foreach(row -> System.out.println(row.getString(0) + " " + row.getString(1)));
+
         spark.stop();
     }
 }
