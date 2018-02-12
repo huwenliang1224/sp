@@ -30,8 +30,9 @@ public class JavaSQLDataSourceExample2 {
                 .config("spark.some.config.option", "some-value")
                 .getOrCreate();
 
-        Dataset<Row> peopleDF = spark.read().format("json").load("examples/src/main/resources/people.json");
-        peopleDF.foreach(row -> System.out.println(row.<String>getAs("name")));
+
+        Dataset<Row> peopleDF = spark.read().format("json").load("people2.json");
+        peopleDF.show();
 
         spark.stop();
     }
