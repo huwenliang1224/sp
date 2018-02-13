@@ -22,10 +22,53 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 import java.io.IOException;
-
-import static org.apache.spark.sql.functions.col;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JavaSQLDataSourceExample2 {
+
+    public static class Square implements Serializable {
+        private int value;
+        private int square;
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        public int getSquare() {
+            return square;
+        }
+
+        public void setSquare(int square) {
+            this.square = square;
+        }
+    }
+
+    public static class Cube implements Serializable {
+        private int value;
+        private int cube;
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        public int getCube() {
+            return cube;
+        }
+
+        public void setCube(int cube) {
+            this.cube = cube;
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         SparkSession spark = SparkSession
@@ -34,10 +77,35 @@ public class JavaSQLDataSourceExample2 {
                 .config("spark.some.config.option", "some-value")
                 .getOrCreate();
 
-        Dataset<Row> df = spark.read().json("test2.json");
-        Dataset<Row> result = df.filter(col("class").equalTo(1));
-        result.write().format("json").save("class1");
+        List<Square> squares = new ArrayList<>();
+        for (int value = 1; value <= 5; value++) {
+            Square square = new Square();
+            square.setValue(value);
+            square.setSquare(value * value);
+            squares.add(square);
+        }
 
+// Create a simple DataFrame, store into a partition directory
+        Dataset<Row> squaresDF = spark.createDataFrame(squares, Square.class);
+        squaresDF.write().parquet("data/test_table/key=1");
+
+        List<Cube> cubes = new ArrayList<>();
+        for (int value = 6; value <= 10; value++) {
+            Cube cube = new Cube();
+            cube.setValue(value);
+            cube.setCube(value * value * value);
+            cubes.add(cube);
+        }
+
+// Create another DataFrame in a new partition directory,
+// adding a new column and dropping an existing column
+        Dataset<Row> cubesDF = spark.createDataFrame(cubes, Cube.class);
+        cubesDF.write().parquet("data/test_table/key=2");
+
+// Read the partitioned table
+        Dataset<Row> mergedDF = spark.read().option("mergeSchema", true).parquet("data/test_table");
+        mergedDF.printSchema();
+        mergedDF.show();
 
         spark.stop();
     }
