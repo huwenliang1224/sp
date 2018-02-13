@@ -22,6 +22,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 import java.io.*;
+import java.util.stream.Collectors;
 
 import static org.apache.spark.sql.functions.collect_list;
 
@@ -42,9 +43,8 @@ public class JavaSQLDataSourceExample2 {
 
         result.javaRDD().collect().forEach(row -> {
             try {
-                bw.write(row.getString(0) + " " + String.join(",", row.getList(1)));
+                bw.write(row.getString(0) + " " + row.<String>getList(1).stream().collect(Collectors.joining(",")));
             } catch (IOException e) {
-                e.printStackTrace();
             }
         });
 
