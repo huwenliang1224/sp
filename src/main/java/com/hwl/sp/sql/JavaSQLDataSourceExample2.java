@@ -43,7 +43,7 @@ public class JavaSQLDataSourceExample2 {
 
         result.javaRDD().collect().forEach(row -> {
             try {
-                bw.write(row.getString(0) + " " + row.<String>getList(1).stream().collect(Collectors.joining(",")));
+                bw.write(row.getLong(0) + " " + row.<String>getList(1).stream().collect(Collectors.joining(",")));
             } catch (IOException e) {
             }
         });
