@@ -21,6 +21,8 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import static org.apache.spark.sql.functions.collect_list;
+
 public class JavaSQLDataSourceExample2 {
 
     public static void main(String[] args) {
@@ -30,13 +32,9 @@ public class JavaSQLDataSourceExample2 {
                 .config("spark.some.config.option", "some-value")
                 .getOrCreate();
 
-        Dataset<Row> peopleDF = spark.read().json("test.json");
-        peopleDF.show();
+        Dataset<Row> df = spark.read().json("test2.json");
 
-        peopleDF.createOrReplaceTempView("test");
-
-        Dataset<Row> result = spark.sql("select class, sum(age) age from test group by class");
-        result.show();
+        df.groupBy("class").agg(collect_list("name")).show();
 
 
         spark.stop();
