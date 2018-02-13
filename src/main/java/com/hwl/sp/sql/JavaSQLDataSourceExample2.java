@@ -36,7 +36,7 @@ public class JavaSQLDataSourceExample2 {
 
         Dataset<Row> df = spark.read().json("test2.json");
         Dataset<Row> result = df.filter(col("class").equalTo(1));
-        result.write().format("text").save("class1");
+        result.write().format("json").save("class1");
 
 
         spark.stop();
