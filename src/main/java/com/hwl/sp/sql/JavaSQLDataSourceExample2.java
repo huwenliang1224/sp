@@ -21,10 +21,9 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import java.io.*;
-import java.util.stream.Collectors;
+import java.io.IOException;
 
-import static org.apache.spark.sql.functions.collect_list;
+import static org.apache.spark.sql.functions.col;
 
 public class JavaSQLDataSourceExample2 {
 
@@ -36,21 +35,10 @@ public class JavaSQLDataSourceExample2 {
                 .getOrCreate();
 
         Dataset<Row> df = spark.read().json("test2.json");
+        Dataset<Row> result = df.filter(col("class").equalTo(1));
+        result.write().save("class1");
 
-        Dataset<Row> result = df.groupBy("class").agg(collect_list("name"));
 
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/root/project/sp/result.txt"), "utf-8"));
-
-        result.javaRDD().collect().forEach(row -> {
-            try {
-                bw.write(row.getLong(0) + " " + row.<String>getList(1).stream().collect(Collectors.joining(",")));
-                bw.newLine();
-                bw.flush();
-            } catch (IOException e) {
-            }
-        });
-
-        bw.close();
         spark.stop();
     }
 }
