@@ -21,11 +21,13 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import java.io.*;
+
 import static org.apache.spark.sql.functions.collect_list;
 
 public class JavaSQLDataSourceExample2 {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         SparkSession spark = SparkSession
                 .builder()
                 .appName("Java Spark SQL data sources example2")
@@ -34,9 +36,19 @@ public class JavaSQLDataSourceExample2 {
 
         Dataset<Row> df = spark.read().json("test2.json");
 
-        df.groupBy("class").agg(collect_list("name")).show();
+        Dataset<Row> result = df.groupBy("class").agg(collect_list("name"));
 
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/root/project/sp/result.txt"), "utf-8"));
 
+        result.javaRDD().collect().forEach(row -> {
+            try {
+                bw.write(row.getString(0) + " " + String.join(",", row.getList(1)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        bw.close();
         spark.stop();
     }
 }
