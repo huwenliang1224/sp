@@ -9,33 +9,27 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class JavaWordCount {
+public class JavaWordCount2 {
     private static final Pattern SPACE = Pattern.compile(" ");
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length < 1) {
-            System.err.println("Usage: JavaWordCount <file>");
-            System.exit(1);
+        SparkSession spark = SparkSession.builder().appName("test").getOrCreate();
+
+        JavaRDD<String> rdd = spark.read().textFile("wc.txt").javaRDD();
+
+        JavaRDD<String> rdd2 = rdd.flatMap(line -> Arrays.asList(SPACE.split(line)).iterator());
+
+        JavaPairRDD<String, Integer> rdd3 = rdd2.mapToPair(line -> new Tuple2<>(line, 1));
+
+        JavaPairRDD<String, Integer> rdd4 = rdd3.reduceByKey((i, j) -> i + j);
+
+        List<Tuple2<String, Integer>> list = rdd4.collect();
+
+        for (Tuple2 tuple2 : list) {
+            System.out.println(tuple2._1 + " " + tuple2._2);
         }
 
-        SparkSession spark = SparkSession
-                .builder()
-                .appName("JavaWordCount")
-                .getOrCreate();
-
-        JavaRDD<String> lines = spark.read().textFile(args[0]).javaRDD();
-
-        JavaRDD<String> words = lines.flatMap(s -> Arrays.asList(SPACE.split(s)).iterator());
-
-        JavaPairRDD<String, Integer> ones = words.mapToPair(s -> new Tuple2<>(s, 1));
-
-        JavaPairRDD<String, Integer> counts = ones.reduceByKey((i1, i2) -> i1 + i2);
-
-        List<Tuple2<String, Integer>> output = counts.collect();
-        for (Tuple2<?, ?> tuple : output) {
-            System.out.println(tuple._1() + ": " + tuple._2());
-        }
         spark.stop();
     }
 }
