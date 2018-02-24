@@ -2,6 +2,7 @@ package com.hwl.sp;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.sql.SparkSession;
@@ -14,7 +15,7 @@ public class JavaTC3 {
     public static void main(String[] args) {
         SparkSession spark = SparkSession
                 .builder()
-                .appName("Test")
+                .appName("JavaTC3")
                 .getOrCreate();
 
         List<Tuple2<Integer, Integer>> data = new ArrayList<>(4);
@@ -28,7 +29,8 @@ public class JavaTC3 {
         JavaPairRDD<Integer, Integer> rdd1 = jsc.parallelizePairs(data);
         JavaPairRDD<Integer, Integer> rdd2 = rdd1.mapToPair(e -> new Tuple2<>(e._2(), e._1()));
 
-        JavaPairRDD<Integer, Tuple2<Integer, Integer>> after_join = rdd1.join(rdd2);
+//        JavaPairRDD<Integer, Tuple2<Integer, Integer>> after_join = rdd1.join(rdd2);
+        JavaPairRDD<Integer, Tuple2<Integer, Optional<Integer>>> after_join = rdd1.leftOuterJoin(rdd2);
 
 //        //1
 //        after_join.foreachPartition((VoidFunction<Iterator<Tuple2<Integer, Tuple2<Integer, Integer>>>>) tuple2Iterator -> {
@@ -39,8 +41,8 @@ public class JavaTC3 {
 //        });
 
         //2
-        List<Tuple2<Integer, Tuple2<Integer, Integer>>> result = after_join.collect();
-        for (Tuple2<Integer, Tuple2<Integer, Integer>> line : result) {
+        List<Tuple2<Integer, Tuple2<Integer,  Optional<Integer>>>> result = after_join.collect();
+        for (Tuple2<Integer, Tuple2<Integer,  Optional<Integer>>> line : result) {
             System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
         }
 
