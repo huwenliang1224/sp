@@ -2,13 +2,11 @@ package com.hwl.sp;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.Optional;
-import org.apache.spark.api.java.function.PairFunction;
-import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.sql.SparkSession;
 import scala.Tuple2;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JavaTC3 {
 
@@ -33,18 +31,18 @@ public class JavaTC3 {
         JavaPairRDD<Integer, Tuple2<Integer, Integer>> after_join = rdd1.join(rdd2);
 
         //1
-        after_join.foreach(new VoidFunction<Tuple2<Integer, Tuple2<Integer, Integer>>>() {
-            @Override
-            public void call(Tuple2<Integer, Tuple2<Integer, Integer>> line) throws Exception {
-                System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
-            }
-        });
+//        after_join.foreach(new VoidFunction<Tuple2<Integer, Tuple2<Integer, Integer>>>() {
+//            @Override
+//            public void call(Tuple2<Integer, Tuple2<Integer, Integer>> line) throws Exception {
+//                System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
+//            }
+//        });
 
         //2
-//        List<Tuple2<Integer, Tuple2<Integer,  Optional<Integer>>>> result = after_join.collect();
-//        for (Tuple2<Integer, Tuple2<Integer,  Optional<Integer>>> line : result) {
-//            System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2().isPresent() + ")");
-//        }
+        List<Tuple2<Integer, Tuple2<Integer, Integer>>> result = after_join.collect();
+        for (Tuple2<Integer, Tuple2<Integer, Integer>> line : result) {
+            System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
+        }
 
         spark.stop();
     }
