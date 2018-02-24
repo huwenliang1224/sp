@@ -1,34 +1,21 @@
 package com.hwl.sp;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import scala.Tuple2;
-
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.sql.SparkSession;
+import scala.Tuple2;
 
-public class JavaTC {
-    private static final int numEdges = 200;
-    private static final int numVertices = 100;
-    private static final Random rand = new Random(42);
+import java.util.*;
+
+public class JavaTC2 {
 
     static List<Tuple2<Integer, Integer>> generateGraph() {
-        Set<Tuple2<Integer, Integer>> edges = new HashSet<>(numEdges);
-        while (edges.size() < numEdges) {
-            int from = rand.nextInt(numVertices);
-            int to = rand.nextInt(numVertices);
-            System.out.println(from + " " + to);
-            Tuple2<Integer, Integer> e = new Tuple2<>(from, to);
-            if (from != to) {
-                edges.add(e);
-            }
-        }
+        Set<Tuple2<Integer, Integer>> edges = new HashSet<>(4);
+        edges.add(new Tuple2<>(1,2));
+        edges.add(new Tuple2<>(1,3));
+        edges.add(new Tuple2<>(3,2));
+        edges.add(new Tuple2<>(2,4));
         return new ArrayList<>(edges);
     }
 
