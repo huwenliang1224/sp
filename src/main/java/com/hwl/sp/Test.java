@@ -3,62 +3,40 @@ package com.hwl.sp;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.PairFunction;
+import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.sql.SparkSession;
 import scala.Tuple2;
 
 import java.util.*;
 
-public class JavaTC2 {
-
-    static List<Tuple2<Integer, Integer>> generateGraph() {
-        Set<Tuple2<Integer, Integer>> edges = new HashSet<>(4);
-        edges.add(new Tuple2<>(1,2));
-        edges.add(new Tuple2<>(1,3));
-        edges.add(new Tuple2<>(3,2));
-        edges.add(new Tuple2<>(2,4));
-        return new ArrayList<>(edges);
-    }
-
-    static class ProjectFn implements PairFunction<Tuple2<Integer, Tuple2<Integer, Integer>>,
-            Integer, Integer> {
-        static final ProjectFn INSTANCE = new ProjectFn();
-
-        @Override
-        public Tuple2<Integer, Integer> call(Tuple2<Integer, Tuple2<Integer, Integer>> triple) {
-            return new Tuple2<>(triple._2()._2(), triple._2()._1());
-        }
-    }
+public class Test {
 
     public static void main(String[] args) {
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaTC")
+                .appName("Test")
                 .getOrCreate();
+
+        List<Tuple2<Integer, Integer>> data = new ArrayList<>(4);
+        data.add(new Tuple2<>(1, 2));
+        data.add(new Tuple2<>(1, 3));
+        data.add(new Tuple2<>(3, 2));
+        data.add(new Tuple2<>(2, 4));
 
         JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
 
-        Integer slices = (args.length > 0) ? Integer.parseInt(args[0]): 2;
-        JavaPairRDD<Integer, Integer> tc = jsc.parallelizePairs(generateGraph(), slices).cache();
+        JavaPairRDD<Integer, Integer> rdd1 = jsc.parallelizePairs(data);
+        JavaPairRDD<Integer, Integer> rdd2 = rdd1.mapToPair(e -> new Tuple2<>(e._2(), e._1()));
 
-        // Linear transitive closure: each round grows paths by one edge,
-        // by joining the graph's edges with the already-discovered paths.
-        // e.g. join the path (y, z) from the TC with the edge (x, y) from
-        // the graph to obtain the path (x, z).
-
-        // Because join() joins on keys, the edges are stored in reversed order.
-        JavaPairRDD<Integer, Integer> edges = tc.mapToPair(e -> new Tuple2<>(e._2(), e._1()));
-
-        long oldCount;
-        long nextCount = tc.count();
-        do {
-            oldCount = nextCount;
-            // Perform the join, obtaining an RDD of (y, (z, x)) pairs,
-            // then project the result to obtain the new (x, z) paths.
-            tc = tc.union(tc.join(edges).mapToPair(ProjectFn.INSTANCE)).distinct().cache();
-            nextCount = tc.count();
-        } while (nextCount != oldCount);
-
-        System.out.println("TC has " + tc.count() + " edges.");
+        rdd1.join(rdd2).foreachPartition(new VoidFunction<Iterator<Tuple2<Integer, Tuple2<Integer, Integer>>>>() {
+            @Override
+            public void call(Iterator<Tuple2<Integer, Tuple2<Integer, Integer>>> tuple2Iterator) throws Exception {
+                while (tuple2Iterator.hasNext()) {
+                    Tuple2<Integer, Tuple2<Integer, Integer>> line = tuple2Iterator.next();
+                    System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
+                }
+            }
+        });
         spark.stop();
     }
 }

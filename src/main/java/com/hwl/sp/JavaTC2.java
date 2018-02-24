@@ -32,7 +32,7 @@ public class JavaTC2 {
     public static void main(String[] args) {
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaTC")
+                .appName("JavaTC2")
                 .getOrCreate();
 
         JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
