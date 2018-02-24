@@ -28,13 +28,15 @@ public class Test {
         JavaPairRDD<Integer, Integer> rdd1 = jsc.parallelizePairs(data);
         JavaPairRDD<Integer, Integer> rdd2 = rdd1.mapToPair(e -> new Tuple2<>(e._2(), e._1()));
 
-//        rdd1.join(rdd2).foreachPartition((VoidFunction<Iterator<Tuple2<Integer, Tuple2<Integer, Integer>>>>) tuple2Iterator -> {
-//            while (tuple2Iterator.hasNext()) {
-//                Tuple2<Integer, Tuple2<Integer, Integer>> line = tuple2Iterator.next();
-//                System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
-//            }
-//        });
+        //1
+        rdd1.join(rdd2).foreachPartition((VoidFunction<Iterator<Tuple2<Integer, Tuple2<Integer, Integer>>>>) tuple2Iterator -> {
+            while (tuple2Iterator.hasNext()) {
+                Tuple2<Integer, Tuple2<Integer, Integer>> line = tuple2Iterator.next();
+                System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
+            }
+        });
 
+        //2
         List<Tuple2<Integer, Tuple2<Integer, Integer>>> result = rdd1.join(rdd2).collect();
         for (Tuple2<Integer, Tuple2<Integer, Integer>> line : result) {
             System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
