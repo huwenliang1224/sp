@@ -22,7 +22,7 @@ public class JavaStructuredNetworkWordCount {
                 .readStream()
                 .format("socket")
                 .option("host", "localhost")
-                .option("port", 9999)
+                .option("port", 8080)
                 .load();
 
         // Split the lines into words
