@@ -30,21 +30,21 @@ public class JavaTC3 {
         JavaPairRDD<Integer, Integer> rdd2 = rdd1.mapToPair(e -> new Tuple2<>(e._2(), e._1()));
 
 //        JavaPairRDD<Integer, Tuple2<Integer, Integer>> after_join = rdd1.join(rdd2);
-        JavaPairRDD<Integer, Tuple2<Integer, Optional<Integer>>> after_join = rdd1.leftOuterJoin(rdd2);
+        JavaPairRDD<Integer, Tuple2<Integer, Integer>> after_join = rdd1.join(rdd2);
 
-//        //1
-//        after_join.foreachPartition((VoidFunction<Iterator<Tuple2<Integer, Tuple2<Integer, Integer>>>>) tuple2Iterator -> {
-//            while (tuple2Iterator.hasNext()) {
-//                Tuple2<Integer, Tuple2<Integer, Integer>> line = tuple2Iterator.next();
-//                System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
-//            }
-//        });
+        //1
+        after_join.foreach(new VoidFunction<Tuple2<Integer, Tuple2<Integer, Integer>>>() {
+            @Override
+            public void call(Tuple2<Integer, Tuple2<Integer, Integer>> line) throws Exception {
+                System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
+            }
+        });
 
         //2
-        List<Tuple2<Integer, Tuple2<Integer,  Optional<Integer>>>> result = after_join.collect();
-        for (Tuple2<Integer, Tuple2<Integer,  Optional<Integer>>> line : result) {
-            System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2() + ")");
-        }
+//        List<Tuple2<Integer, Tuple2<Integer,  Optional<Integer>>>> result = after_join.collect();
+//        for (Tuple2<Integer, Tuple2<Integer,  Optional<Integer>>> line : result) {
+//            System.out.println(line._1() + "(" + line._2()._1() + "," + line._2()._2().isPresent() + ")");
+//        }
 
         spark.stop();
     }
