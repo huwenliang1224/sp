@@ -15,7 +15,7 @@ public class JavaSocket {
         // Create a local StreamingContext with two working thread and batch interval of 1 second
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaTC")
+                .appName("JavaSocket")
                 .getOrCreate();
 
         JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
