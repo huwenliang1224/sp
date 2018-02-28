@@ -13,14 +13,9 @@ import java.util.Arrays;
 public class JavaSocket {
     public static void main(String[] args) throws InterruptedException {
         // Create a local StreamingContext with two working thread and batch interval of 1 second
-        SparkSession spark = SparkSession
-                .builder()
-                .appName("JavaSocket")
-                .getOrCreate();
+        SparkConf conf = new SparkConf().setAppName("JavaSocket");
 
-        JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
-
-        JavaStreamingContext javaStreamingContext = new JavaStreamingContext(javaSparkContext, Durations.seconds(10));
+        JavaStreamingContext javaStreamingContext = new JavaStreamingContext(conf, Durations.seconds(10));
 
         // Create a DStream that will connect to hostname:port, like localhost:9999
         JavaReceiverInputDStream<String> lines = javaStreamingContext.socketTextStream("localhost", 9999);
