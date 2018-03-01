@@ -18,7 +18,7 @@ public class JavaSocket {
         JavaStreamingContext javaStreamingContext = new JavaStreamingContext(conf, Durations.seconds(10));
 
         // Create a DStream that will connect to hostname:port, like localhost:9999
-        JavaReceiverInputDStream<String> lines = javaStreamingContext.socketTextStream("localhost", 9999);
+        JavaReceiverInputDStream<String> lines = javaStreamingContext.socketTextStream("47.96.4.85", 9999);
 
         // Split each line into words
         JavaDStream<String> words = lines.flatMap(x -> Arrays.asList(x.split(" ")).iterator());
